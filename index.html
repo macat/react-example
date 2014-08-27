@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>React Example</title>
+  <meta charset="utf-8" />
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+  <!-- React -->
+  <script src="http://fb.me/react-with-addons-0.11.1.min.js"></script>
+
+  <script src="codemirror-compressed.js"></script>
+  <link rel="stylesheet" href="codemirror.css">
+
+</head>
+<body>
+  <header>
+    <h1>React Example</h1>
+  </header>
+  <div id="examples">
+  </div>
+  <script>
+  </script>
+  <script>
+    var D = React.DOM;
+    var Editor = React.createClass({
+      componentDidMount: function() {
+        this.editor = CodeMirror.fromTextArea(this.refs.textarea.getDOMNode(), {
+          lineNumbers: true,
+        });
+        this.editor.on('change', this.handleChange);
+      },
+      handleChange: function() {
+        this.props.onChange && this.props.onChange(this.editor.getValue())
+      },
+      render: function() {
+        return D.textarea({ref: 'textarea'}, [this.props.code])
+      }
+    });
+    var Row = React.createClass({
+      getInitialState: function() {
+        return {
+          code: this.props.code
+        }
+      },
+      handleCodeChange: function(code) {
+        this.setState({code: code})
+      },
+      render: function() {
+        var component = eval(this.state.code);
+        return D.div({className: 'row'}, [
+          D.div({className: 'col-md-6'}, [
+            D.h3({}, this.props.title),
+            Editor({code: this.props.code, onChange: this.handleCodeChange})
+          ]),
+          D.div({className: 'col-md-6'}, [component()])
+        ])
+      }
+    });
+  </script>
+  <script>
+    var examples = [
+      {
+        title: "Simple title",
+        code: "\
+var hello = React.createClass({displayName: 'HelloMessage',\n\
+  render: function() {\n\
+    return React.DOM.div(null, 'Hello ', this.props.name);\n\
+  }\n\
+});\n\
+(hello)\
+"
+      }
+    ];
+
+
+    exampleComponents = [];
+    examples.forEach(function(example) {
+      exampleComponents.push(Row({title: example.title, code: example.code}));
+    });
+    React.renderComponent(D.div({}, exampleComponents), document.getElementById('examples'));
+  </script>
+</body>
+</html>
