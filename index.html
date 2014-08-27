@@ -15,10 +15,10 @@
 
 </head>
 <body>
-  <header>
+  <header class="container-fluid" style="width: 80%; margin: 50px auto;">
     <h1>React Example</h1>
   </header>
-  <div id="examples">
+  <div id="examples" class="container-fluid" style="width: 80%; margin: 50px auto;">
   </div>
   <script>
   </script>
@@ -51,7 +51,7 @@
         var component = eval(this.state.code);
         return D.div({className: 'row'}, [
           D.div({className: 'col-md-6'}, [
-            D.h3({}, this.props.title),
+            D.h3({}, this.props.index + ". " + this.props.title),
             Editor({code: this.props.code, onChange: this.handleCodeChange})
           ]),
           D.div({className: 'col-md-6'}, [component()])
@@ -64,20 +64,78 @@
       {
         title: "Simple title",
         code: "\
-var hello = React.createClass({displayName: 'HelloMessage',\n\
+var hello = React.createClass({\n\
   render: function() {\n\
-    return React.DOM.div(null, 'Hello ', this.props.name);\n\
+    return React.DOM.h2(null, 'Hello!');\n\
   }\n\
 });\n\
-(hello)\
-"
+(hello)"
+      },
+      {
+        title: "Simple article",
+        code: "\
+var hello = React.createClass({\n\
+  render: function() {\n\
+    return React.DOM.div(null, [\n\
+      React.DOM.h2(null, 'Title'),\n\
+      React.DOM.p(null, 'Paragraph content')\n\
+    ]);\n\
+  }\n\
+});\n\
+(hello)"
+      },
+      {
+        title: "Simple component",
+        code: "\
+Title = React.createClass({\n\
+  render: function() {\n\
+    return React.DOM.h2(null, this.props.title)\n\
+  }\n\
+});\n\
+Content = React.createClass({\n\
+  render: function() {\n\
+    return React.DOM.p(null, this.props.content)\n\
+  }\n\
+});\n\
+Article = React.createClass({\n\
+  render: function() {\n\
+    return React.DOM.div(null, [\n\
+      Title({title: this.props.title}),\n\
+      Content({content: this.props.content})\n\
+    ]);\n\
+  }\n\
+});\n\
+var comp = React.createClass({\n\
+  render: function() {\n\
+    return React.DOM.div(null, [\n\
+      Article({title: 'test', content: 'content'})\n\
+    ])\n\
+  }\n\
+});\n\
+(comp)"
+      },
+      {
+        title: "Reuse component",
+        code: "\
+var articles = [\n\
+  {title: 'Hey!', content: 'OK'}\n\
+];\n\
+var comp = React.createClass({\n\
+  render: function() {\n\
+    return React.DOM.div(null, articles.map(function(article) {\n\
+      return Article(article)\n\
+    }));\n\
+  }\n\
+});\n\
+(comp)"
       }
     ];
 
 
-    exampleComponents = [];
+    var exampleComponents = [];
+    var index = 0;
     examples.forEach(function(example) {
-      exampleComponents.push(Row({title: example.title, code: example.code}));
+      exampleComponents.push(Row({title: example.title, code: example.code, index: index++}));
     });
     React.renderComponent(D.div({}, exampleComponents), document.getElementById('examples'));
   </script>
