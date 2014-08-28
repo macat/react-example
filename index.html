@@ -128,7 +128,76 @@ var comp = React.createClass({\n\
   }\n\
 });\n\
 (comp)"
+      },
+      {
+        title: "Props",
+        code: "\
+Button = React.createClass({\n\
+  propTypes: {\n\
+    title: React.PropTypes.string\n\
+  },\n\
+  render: function() {\n\
+    return this.transferPropsTo(\n\
+      React.DOM.button({className: 'btn'}, this.props.title)\n\
+    )\n\
+  }\n\
+});\n\
+ClickableButton = React.createClass({\n\
+  propTypes: {\n\
+    title: React.PropTypes.string,\n\
+    handleClick: React.PropTypes.func\n\
+  },\n\
+  getDefaultProps: function() {\n\
+    return {\n\
+      title: 'Submit',\n\
+      handleClick: null\n\
+    }\n\
+  },\n\
+  handleClick: function(e) {\n\
+    e.preventDefault()\n\
+    if (this.props.handleClick) {\n\
+      this.props.handleClick()\n\
+    }\n\
+  },\n\
+  render: function() {\n\
+    return Button({\n\
+      className: 'btn',\n\
+      onClick: this.handleClick,\n\
+      title: this.props.title\n\
+    })\n\
+  }\n\
+});\n\
+var comp = React.createClass({\n\
+  render: function() {\n\
+    return React.DOM.div(null, [Button(), Button({title: '+'})])\n\
+  }\n\
+});\n\
+(comp)"
+      },
+      {
+        title: "States",
+        code: "\
+var comp = React.createClass({\n\
+  getInitialState: function() {\n\
+    return {counter: 12}\n\
+  },\n\
+  handleUp: function() {\n\
+    this.setState({counter: this.state.counter + 1});\n\
+  },\n\
+  handleDown: function() {\n\
+    this.setState({counter: this.state.counter - 1});\n\
+  },\n\
+  render: function() {\n\
+    return React.DOM.div(null, [\n\
+      ClickableButton({title: '+', handleClick: this.handleUp}),\n\
+      this.state.counter,\n\
+      ClickableButton({title: '-', handleClick: this.handleDown})\n\
+    ]);\n\
+  }\n\
+});\n\
+(comp)"
       }
+
     ];
 
 
