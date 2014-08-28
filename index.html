@@ -130,7 +130,7 @@ var comp = React.createClass({\n\
 (comp)"
       },
       {
-        title: "Props",
+        title: "Events + Props",
         code: "\
 Button = React.createClass({\n\
   propTypes: {\n\
@@ -196,6 +196,37 @@ var comp = React.createClass({\n\
   }\n\
 });\n\
 (comp)"
+      },
+      {
+        title: "Refs",
+        code: "\
+var comp = React.createClass({\n\
+  getInitialState: function() {\n\
+    return {counter: 12}\n\
+  },\n\
+  handleUp: function() {\n\
+    this.setState({counter: this.state.counter + 1});\n\
+  },\n\
+  handleDown: function() {\n\
+    this.setState({counter: this.state.counter - 1});\n\
+  },\n\
+  change: function() {\n\
+    this.setState({counter: parseInt(this.refs.counter.getDOMNode().value)});\n\
+  },\n\
+  render: function() {\n\
+    return React.DOM.div(null, [\n\
+      ClickableButton({title: '+', handleClick: this.handleUp}),\n\
+      React.DOM.input({\n\
+        type: 'text',\n\
+        onChange: this.change,\n\
+        ref: 'counter',\n\
+        value: this.state.counter\n\
+      }),\n\
+      ClickableButton({title: '-', handleClick: this.handleDown})\n\
+    ]);\n\
+  }\n\
+});\n\
+(comp)",
       }
 
     ];
