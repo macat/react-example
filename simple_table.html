@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>React Example</title>
+  <meta charset="utf-8" />
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+  <!-- React -->
+  <script src="http://fb.me/react-with-addons-0.11.1.min.js"></script>
+</head>
+<body>
+<div id="content"></div>
+<script>
+
+D = React.DOM;
+
+Button = React.createClass({
+  propTypes: {
+    title: React.PropTypes.string
+  },
+  render: function() {
+    return D.button({}, this.props.title);
+  }
+});
+
+Checkbox = React.createClass({
+  propTypes: {
+    onChange: React.PropTypes.func
+  },
+  handleChange: function(e) {
+    console.log( this.refs.check.getDOMNode().checked);
+    if (this.props.onChange) {
+      this.props.onChange(this.refs.check.getDOMNode().value)
+    }
+  },
+  render: function() {
+    return D.input({ref: 'check', type: 'checkbox', onChange: this.handleChange})
+  }
+});
+
+TableRow = React.createClass({
+  propTypes: {
+    columns: React.PropTypes.array
+  },
+  render: function() {
+    return D.tr({}, this.props.columns.map(function(column) {
+        return D.td({}, column)
+      }));
+  }
+});
+TableHeader = React.createClass({
+  propTypes: {
+    columns: React.PropTypes.array
+  },
+  render: function() {
+    return D.thead({}, D.tr({}, this.props.columns.map(function(column) {
+        return D.th({}, column)
+    })));
+  }
+});
+
+CheckRow = React.createClass({
+  propTypes: {
+    columns: React.PropTypes.array
+  },
+  render: function() {
+    return TableRow({columns: [Checkbox()].concat(this.props.columns)});
+  }
+});
+
+Table = React.createClass({
+  propTypes: {
+    rows: React.PropTypes.array.isRequired,
+    headers: React.PropTypes.array.isRequired,
+    rowType: React.PropTypes.component
+  },
+  getDefaultProps: function() {
+    return {
+      rowType: TableRow,
+      headerType: TableHeader
+    }
+  },
+  render: function() {
+    var that = this;
+    return D.table({className: 'table'}, [
+          this.props.headerType({columns: this.props.headers}),
+          this.props.rows.map(function(row) {
+            return that.props.rowType({columns: row})
+          })
+      ]);
+  }
+});
+
+CheckTable = React.createClass({
+  getInitialState: function() {
+  },
+  render: function() {
+    return this.transferPropsTo(Table({
+      rowType: CheckRow,
+      headerType: CheckHeader
+    }));
+  }
+});
+
+CheckHeader = React.createClass({
+  propTypes: {
+    columns: React.PropTypes.array
+  },
+  render: function() {
+    return TableRow({columns: [Checkbox(onChange: this.handleChange)].concat(this.props.columns)});
+  }
+});
+
+
+React.renderComponent(
+  D.div({}, [
+    Button({title: 'Send'}),
+    CheckTable({headers: ['Name', 'Age'], rows: [['AA', 12], ['BB', 15]]})
+  ]),
+  document.getElementById('content')
+)
+</script>
+</body>
+</html>
