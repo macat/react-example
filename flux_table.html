@@ -118,9 +118,35 @@ Actions = {
   checkAll: function() {
     Dispatcher.dispatch('CHECK_ALL')
   }
-}
+};
 
-ProfileStore = 
+ProfileStore = {
+  profiles: [
+    {id: 1, checked: false, name: 'A A', age: 34},
+    {id: 2, checked: false, name: 'B B', age: 44},
+    {id: 3, checked: false, name: 'C C', age: 54},
+  ],
+  onChange: function(func) {
+    ProfileStore.listener = func;
+  },
+  changed: function() {
+    if (ProfileStore.listener) {
+      ProfileStore.listener();
+    }
+  },
+  getState: function() {
+    return ProfileStore.profiles;
+  },
+  handlers: {
+    'CHECK_ALL_PROFILES': ProfileStore.checkAll
+  },
+  checkAll: function() {
+    ProfileStore.profiles.forEach(function(profile) {
+      profile.checked = true;
+    });
+    ProfileStore.changed();
+  }
+};
 
 
 ApplicationView = React.createClass({
