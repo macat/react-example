@@ -145,11 +145,12 @@ ProfileStore = {
   handlers: {
     'CHECK_ALL_PROFILES': 'checkAll'
   },
-  checkAll: function(payload) {
+  checkAll: function(done, payload) {
     ProfileStore.profiles.forEach(function(profile) {
       profile.checked = payload.checked;
     });
     ProfileStore.changed();
+    done();
   }
 };
 Dispatcher.registerStore(ProfileStore);
