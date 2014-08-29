@@ -8,7 +8,8 @@
   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
 
   <!-- React -->
-  <script src="http://fb.me/react-with-addons-0.11.1.min.js"></script>
+  <script src="http://fb.me/react-with-addons-0.11.1.js"></script>
+  <script src="http://rsvpjs-builds.s3.amazonaws.com/rsvp-latest.js"></script>
   <script src="dispatcher.js"></script>
 </head>
 <body>
@@ -95,8 +96,6 @@ Table = React.createClass({
 });
 
 CheckTable = React.createClass({
-  getInitialState: function() {
-  },
   render: function() {
     return this.transferPropsTo(Table({
       rowType: CheckRow,
@@ -109,18 +108,24 @@ CheckHeader = React.createClass({
   propTypes: {
     columns: React.PropTypes.array
   },
+  handleChange: function(checked) {
+    Actions.checkAll(checked);
+  },
   render: function() {
-    return TableRow({columns: [Checkbox(onChange: this.handleChange)].concat(this.props.columns)});
+    return TableRow({
+      columns: [Checkbox({onChange: this.handleChange})].concat(this.props.columns)
+    });
   }
 });
 
 Actions = {
-  checkAll: function() {
-    Dispatcher.dispatch('CHECK_ALL')
+  checkAll: function(checked) {
+    Dispatcher.dispatch('CHECK_ALL_PROFILES', {checked: checked})
   }
 };
 
 ProfileStore = {
+  storeName: 'profiles',
   profiles: [
     {id: 1, checked: false, name: 'A A', age: 34},
     {id: 2, checked: false, name: 'B B', age: 44},
@@ -135,21 +140,25 @@ ProfileStore = {
     }
   },
   getState: function() {
-    return ProfileStore.profiles;
+    return { profiles: ProfileStore.profiles };
   },
   handlers: {
-    'CHECK_ALL_PROFILES': ProfileStore.checkAll
+    'CHECK_ALL_PROFILES': 'checkAll'
   },
-  checkAll: function() {
+  checkAll: function(payload) {
     ProfileStore.profiles.forEach(function(profile) {
-      profile.checked = true;
+      profile.checked = payload.checked;
     });
     ProfileStore.changed();
   }
 };
+Dispatcher.registerStore(ProfileStore);
 
 
 ApplicationView = React.createClass({
+  getInitialState: function() {
+    return ProfileStore.getState();
+  },
   componentWillMount: function() {
     ProfileStore.onChange(this.handleChange)
   },
@@ -158,16 +167,26 @@ ApplicationView = React.createClass({
     this.setState(ProfileStore.getState())
   },
 
+  profileRows: function() {
+    return this.state.profiles.map(function(profile) {
+      return [profile.name, profile.age];
+    });
+  },
+
   render: function() {
     return D.div({}, [
       Button({title: 'Send'}),
-      CheckTable({headers: ['Name', 'Age'], rows: [['AA', 12], ['BB', 15]]})
+      CheckTable({
+        headers: ['Name', 'Age'],
+        rows: this.profileRows()
+      })
     ])
   }
 });
 
 
 React.renderComponent(
+  ApplicationView(),
   document.getElementById('content')
 )
 </script>
