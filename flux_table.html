@@ -29,16 +29,21 @@ Button = React.createClass({
 
 Checkbox = React.createClass({
   propTypes: {
-    onChange: React.PropTypes.func
+    onChange: React.PropTypes.func,
+    checked: React.PropTypes.bool
   },
   handleChange: function(e) {
-    console.log( this.refs.check.getDOMNode().checked);
     if (this.props.onChange) {
-      this.props.onChange(this.refs.check.getDOMNode().value)
+      this.props.onChange(this.refs.check.getDOMNode().checked)
     }
   },
   render: function() {
-    return D.input({ref: 'check', type: 'checkbox', onChange: this.handleChange})
+    return D.input({
+      ref: 'check',
+      type: 'checkbox',
+      onChange: this.handleChange,
+      checked: this.props.checked || false
+    })
   }
 });
 
@@ -65,10 +70,10 @@ TableHeader = React.createClass({
 
 CheckRow = React.createClass({
   propTypes: {
-    columns: React.PropTypes.array
+    columns: React.PropTypes.object
   },
   render: function() {
-    return TableRow({columns: [Checkbox()].concat(this.props.columns)});
+    return TableRow({columns: [Checkbox({checked: this.props.columns.checked})].concat(this.props.columns.columns)});
   }
 });
 
@@ -113,7 +118,10 @@ CheckHeader = React.createClass({
   },
   render: function() {
     return TableRow({
-      columns: [Checkbox({onChange: this.handleChange})].concat(this.props.columns)
+      columns: [Checkbox({
+        onChange: this.handleChange,
+        checked: this.props.columns.checkedAll
+      })].concat(this.props.columns.headers)
     });
   }
 });
@@ -145,9 +153,9 @@ ProfileStore = {
   handlers: {
     'CHECK_ALL_PROFILES': 'checkAll'
   },
-  checkAll: function(done, payload) {
+  checkAll: function(payload, done) {
     ProfileStore.profiles.forEach(function(profile) {
-      profile.checked = payload.checked;
+      profile.checked = payload.checked || false;
     });
     ProfileStore.changed();
     done();
@@ -170,15 +178,28 @@ ApplicationView = React.createClass({
 
   profileRows: function() {
     return this.state.profiles.map(function(profile) {
-      return [profile.name, profile.age];
+      return {
+        checked: profile.checked,
+        columns: [profile.name, profile.age]
+      };
     });
+  },
+
+  checkedAll: function() {
+    var ret = true;
+    this.state.profiles.forEach(function(profile) {
+      if (profile.checked != true) {
+        ret = false;
+      }
+    });
+    return ret;
   },
 
   render: function() {
     return D.div({}, [
       Button({title: 'Send'}),
       CheckTable({
-        headers: ['Name', 'Age'],
+        headers: {checkedAll: this.checkedAll(), headers: ['Name', 'Age']},
         rows: this.profileRows()
       })
     ])
